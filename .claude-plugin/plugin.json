@@ -1,0 +1,18 @@
+{
+  "name": "fortify",
+  "description": "OpenText Fortify AppSec skills. Use for SAST/DAST/SCA scanning, vulnerability triage, audit workflows, CI/CD pipeline integration, and FCLI commands. Supports Fortify on Demand (FoD) and Software Security Center (SSC).",
+  "author": {
+    "name": "OpenText Fortify"
+  },
+  "homepage": "https://www.opentext.com/products/application-security",
+  "repository": "https://github.com/fortify/skills",
+  "license": "MIT",
+  "keywords": ["fortify", "appsec", "sast", "dast", "sca", "vulnerability", "fod", "ssc", "opentext", "fcli"],
+  "skills": [
+    "./skills/fortify-fod/",
+    "./skills/fortify-ssc/",
+    "./skills/fcli-common/",
+    "./skills/fortify-remediate/",
+    "./skills/fortify-cicd-integration/"
+  ]
+}
