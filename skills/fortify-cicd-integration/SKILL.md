@@ -98,47 +98,15 @@ Do NOT generate or write the workflow file until the user confirms. If any item 
 |---|---|---|
 | GitHub Actions | FoD or SSC | See [references/github.md](references/github.md) |
 | GitLab CI | FoD or SSC | See [references/gitlab.md](references/gitlab.md) |
+| Azure DevOps | FoD or SSC | See [references/azure-devops.md](references/azure-devops.md) |
+| Jenkins | FoD or SSC | See [references/jenkins.md](references/jenkins.md) |
 | Azure DevOps | FoD or SSC | See **Azure DevOps** section below |
 | Jenkins | FoD or SSC | See **Jenkins** section below |
 | Any other platform | FoD or SSC | See [references/generic-ci.md](references/generic-ci.md) |
 
-For GitHub Actions and GitLab CI: read the appropriate platform-specific Markdown file before generating any output.
-
-For Azure DevOps and Jenkins: follow the plugin installation guidance in the sections below — do not generate pipeline YAML without first directing the user to install the official plugin.
+For GitHub Actions, GitLab CI, Azure DevOps, and Jenkins: read the appropriate platform-specific Markdown file before generating any output.
 
 For all other platforms (Bitbucket Pipelines, Travis CI, CircleCI, TeamCity, Buildkite, Bamboo, etc.): read [references/generic-ci.md](references/generic-ci.md) before generating any output.
-
----
-
-## Azure DevOps
-
-Fortify provides an official extension for Azure DevOps Pipelines:
-
-**Extension**: [OpenText Fortify on Azure DevOps Marketplace](https://marketplace.visualstudio.com/items?itemName=fortifyvsts.hpe-security-fortify-vsts)
-
-### Guidance
-
-1. Direct the user to install the extension from the Azure DevOps Marketplace at the URL above.
-2. The extension supports both FoD and SSC and provides pipeline tasks that can be added to `azure-pipelines.yml`.
-3. After directing the user to install, fetch the marketplace page or the extension's documentation to get current task names, inputs, and version information before generating any pipeline YAML. Do not guess task names or input parameters.
-4. Keep credentials in Azure DevOps pipeline secrets (variable groups marked as secret, or Azure Key Vault-linked variables). `FOD_URL` / `SSC_URL` should be plain pipeline variables, not secrets.
-
----
-
-## Jenkins
-
-Fortify provides official Jenkins plugins for both FoD and SSC:
-
-| Fortify Deployment | Plugin | URL |
-|---|---|---|
-| Fortify on Demand (FoD) | Fortify on Demand Uploader | https://plugins.jenkins.io/fortify-on-demand-uploader/ |
-| Fortify SSC | Fortify | https://plugins.jenkins.io/fortify/ |
-
-### Guidance
-
-1. Direct the user to install the appropriate plugin from the Jenkins Plugin Manager (or via the URL above).
-2. After directing the user to install, fetch the plugin page to get current configuration options, pipeline step names, and credential requirements before generating any `Jenkinsfile` content. Do not guess step names or parameters.
-3. Store credentials using Jenkins Credentials (Username/Password or Secret Text credential types). `FOD_URL` / `SSC_URL` should be plain environment variables or pipeline parameters, not credential entries.
 
 ---
 
