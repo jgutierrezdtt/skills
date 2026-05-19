@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  check-skill-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify skill versions bumped for changed skills
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base=${{ github.event.pull_request.base.sha }}
+          else
+            base=${{ github.event.before }}
+          fi
+
+          # Skip check on initial push (no previous commit) or force-push
+          if [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            echo "Initial or orphan push — skipping version check"
+            exit 0
+          fi
+
+          exit_code=0
+          for skill_dir in skills/*/; do
+            [ -d "$skill_dir" ] || continue
+            skill_name=$(basename "$skill_dir")
+
+            # Check if any files in this skill changed (excluding SKILL.md itself)
+            changed=$(git diff --name-only "$base" -- "$skill_dir" \
+              | grep -v 'SKILL.md$' || true)
+
+            if [ -n "$changed" ]; then
+              # Content changed — did SKILL.md metadata.version change too?
+              version_bumped=$(git diff "$base" -- "${skill_dir}SKILL.md" \
+                | grep -E '^\+.*version:' || true)
+
+              if [ -z "$version_bumped" ]; then
+                echo "::error::Skill '$skill_name' has content changes but metadata.version in SKILL.md was not bumped"
+                exit_code=1
+              fi
+            fi
+          done
+          exit $exit_code
+
+  release-please:
+    needs: check-skill-versions
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v4@main
+        with:
+          release-type: simple
