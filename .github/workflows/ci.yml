@@ -11,7 +11,7 @@ jobs:
   check-skill-versions:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -59,7 +59,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v4@main
         with:
           release-type: simple
