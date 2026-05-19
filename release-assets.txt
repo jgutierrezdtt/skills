@@ -1,0 +1,14 @@
+# Files and directories to include in the release zip.
+# One path per line. Directories are included recursively.
+# Lines starting with # are comments. Blank lines are ignored.
+# Paths that don't exist are silently skipped (allows forward-compatibility).
+
+skills
+agents
+.claude-plugin
+.codex-plugin
+.agents
+gemini-extension.json
+extensions-distribution-v1.yaml
+LICENSE
+README.md

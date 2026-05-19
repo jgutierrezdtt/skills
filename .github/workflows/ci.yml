@@ -58,8 +58,38 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: actions/checkout@v6
-      - uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v4@main
+      - id: release
+        uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v4@main
         with:
           release-type: simple
+
+  upload-release-asset:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build and upload release zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Read manifest, skip comments/blanks, include only paths that exist
+          paths=()
+          while IFS= read -r entry || [ -n "$entry" ]; do
+            entry="${entry%%#*}"
+            entry="$(echo "$entry" | xargs)"
+            [ -z "$entry" ] && continue
+            [ -e "$entry" ] && paths+=("$entry")
+          done < release-assets.txt
+
+          zip -r fortify-skills.zip "${paths[@]}"
+          gh release upload "${{ needs.release-please.outputs.tag_name }}" \
+            fortify-skills.zip --clobber
