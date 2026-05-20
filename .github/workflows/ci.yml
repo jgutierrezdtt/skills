@@ -71,9 +71,12 @@ jobs:
         with:
           release-type: simple
 
+  # Always build the release zip (tests signing on every branch), but run after
+  # release-please so the zip contains any version-bumped files from that commit.
   build-release-zip:
-    needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    needs: [check-skill-versions, release-please]
+    # Also run if release-please was skipped (e.g. on non-main branch) to still test sign & zip
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -98,6 +101,7 @@ jobs:
 
   upload-release-asset:
     needs: [release-please, build-release-zip]
+    if: needs.release-please.outputs.release_created == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
