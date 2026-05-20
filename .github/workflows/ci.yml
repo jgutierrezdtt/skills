@@ -78,18 +78,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Build release assets and signing manifest
+        env:
+          SIGN_KEY: ${{ secrets.SIGN_KEY }}
+          SIGN_PASSPHRASE: ${{ secrets.SIGN_PASSPHRASE }}
+        run: node .github/scripts/build-release.js "$RUNNER_TEMP/release"
+
       - name: Build release zip
         run: |
-          # Read manifest, skip comments/blanks, include only paths that exist
-          paths=()
-          while IFS= read -r entry || [ -n "$entry" ]; do
-            entry="${entry%%#*}"
-            entry="$(echo "$entry" | xargs)"
-            [ -z "$entry" ] && continue
-            [ -e "$entry" ] && paths+=("$entry")
-          done < release-assets.txt
-
-          zip -r fortify-skills.zip "${paths[@]}"
+          cd "$RUNNER_TEMP/release"
+          zip -r "$GITHUB_WORKSPACE/fortify-skills.zip" .
 
       - name: Upload zip as workflow artifact
         uses: actions/upload-artifact@v4
