@@ -67,7 +67,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - id: release
-        uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v4@main
+        uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v5@main
         with:
           release-type: simple
 
@@ -93,7 +93,7 @@ jobs:
           zip -r "$GITHUB_WORKSPACE/fortify-skills.zip" .
 
       - name: Upload zip as workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: fortify-skills-zip
           path: fortify-skills.zip
@@ -107,7 +107,7 @@ jobs:
       contents: write
     steps:
       - name: Download release zip
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: fortify-skills-zip
 
@@ -134,7 +134,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Download release zip
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: fortify-skills-zip
 
