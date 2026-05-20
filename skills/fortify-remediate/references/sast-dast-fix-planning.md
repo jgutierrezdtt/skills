@@ -1,6 +1,6 @@
 # SAST and DAST Fix Planning
 
-This reference covers **Phase 2 (planning)** for Static (SAST) and Dynamic (DAST) Fortify findings. Work through all steps in order and complete the Phase 2 Completion Gate before returning to SKILL.md for Phase 3.
+This reference covers **Step 2 (planning)** for Static (SAST) and Dynamic (DAST) Fortify findings. Work through all steps in order and complete the Step 2 Completion Gate before returning to SKILL.md for Step 3.
 
 ---
 
@@ -210,9 +210,9 @@ Unit test guidelines for security fixes:
 
 ---
 
-## Phase 2 Completion Gate
+## Step 2 Completion Gate
 
-Before presenting the plan in Phase 3, verify all of the following. If any are unchecked, complete them first:
+Before presenting the plan in Step 3, verify all of the following. If any are unchecked, complete them first:
 
 - [ ] Full issue details retrieved (traces for SAST; request/response for DAST)
 - [ ] Aviator guidance checked and retrieved if available
@@ -225,4 +225,4 @@ Before presenting the plan in Phase 3, verify all of the following. If any are u
 - [ ] Side effects that may change observable behavior are noted
 - [ ] Any issues being deferred are identified with a clear reason
 
-Phase 2 is complete. Return to SKILL.md for Phase 3.
+Step 2 is complete. Return to SKILL.md for Step 3.

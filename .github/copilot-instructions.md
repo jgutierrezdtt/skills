@@ -63,8 +63,10 @@ Because skills cannot reach across directories, some reference files are physica
 
 | Canonical file | Consumer copies (must match byte-for-byte) |
 |----------------|---------------------------------------------|
-| `skills/fcli-common/references/fcli-query-output.md` | `skills/fortify-fod/references/fcli-query-output.md`, `skills/fortify-ssc/references/fcli-query-output.md` |
-| `skills/fcli-common/references/fcli-install.md` | `skills/fortify-fod/references/fcli-install.md`, `skills/fortify-ssc/references/fcli-install.md` |
+| `skills/fcli-common/references/fcli-query-output.md` | `skills/fortify-fod/references/fcli-query-output.md`, `skills/fortify-remediate/references/fcli-query-output.md`, `skills/fortify-ssc/references/fcli-query-output.md` |
+| `skills/fcli-common/references/fcli-install.md` | `skills/fortify-create-app/references/fcli-install.md`, `skills/fortify-fod/references/fcli-install.md`, `skills/fortify-remediate/references/fcli-install.md`, `skills/fortify-ssc/references/fcli-install.md` |
+| `skills/fcli-common/references/output-formats.md` | `skills/fortify-fod/references/output-formats.md`, `skills/fortify-ssc/references/output-formats.md` |
+| `skills/fcli-common/references/mutating-operations.md` | `skills/fortify-fod/references/mutating-operations.md`, `skills/fortify-ssc/references/mutating-operations.md` |
 | `skills/fortify-fod/references/resolving-release.md` | `skills/fortify-remediate/references/resolving-release.md` |
 | `skills/fortify-ssc/references/resolving-appversion.md` | `skills/fortify-remediate/references/resolving-appversion.md` |
 

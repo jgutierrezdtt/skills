@@ -1,6 +1,6 @@
 # SCA Dependency Implementation
 
-This reference covers **Phase 4 (implementation)** for SCA/open source dependency findings — editing package manifests, handling transitive dependencies, and verifying the fix. For Phase 2 (planning), see `references/sca-fix-planning.md`.
+This reference covers **Step 4 (implementation)** for SCA/open source dependency findings — editing package manifests, handling transitive dependencies, and verifying the fix. For Step 2 (planning), see `references/sca-fix-planning.md`.
 
 ---
 
@@ -169,4 +169,4 @@ A brief comment in the dependency manifest noting the CVE being addressed is acc
 
 ---
 
-Phase 4 is complete. Return to SKILL.md for the Completion Summary.
+Step 4 is complete. Return to SKILL.md for the Completion Summary.

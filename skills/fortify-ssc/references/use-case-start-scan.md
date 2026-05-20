@@ -166,7 +166,7 @@ If any ⚠️ findings exist, send **one** message covering all of them:
 > How would you like to proceed?
 > - **Continue** — use the `<resolvedVersionName>` version as originally resolved
 > - **Switch** — switch to the `<currentBranch>` version (ID: `<id>`)
-> - **Create** — create a new `<currentBranch>` version first (I'll handle it using `use-case-creating-app-or-version.md`)
+> - **Create** — create a new `<currentBranch>` version first (I'll handle it using `use-case-create-version.md`)
 > - **Cancel** — stop here so you can manually correct the target version
 
 Wait for the user's single reply, then act on it. Do **not** ask follow-up alignment questions.

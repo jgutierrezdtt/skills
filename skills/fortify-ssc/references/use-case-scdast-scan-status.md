@@ -53,7 +53,7 @@ SC-DAST scans use a **numeric `id`** (integer) as their primary identifier — n
 
 ---
 
-### Stage 1: Listing and Filtering Scans
+### Step 1: Listing and Filtering Scans
 
 **List all scans:**
 ```bash
@@ -198,7 +198,7 @@ fcli sc-dast scan list \
 
 ---
 
-### Stage 2: Getting Details for a Specific Scan
+### Step 2: Getting Details for a Specific Scan
 
 Use `fcli sc-dast scan get` when you have a specific scan ID:
 
@@ -239,7 +239,7 @@ if started and finished:
 
 ---
 
-### Stage 3: Sensor Status and Health
+### Step 3: Sensor Status and Health
 
 **List all sensors:**
 ```bash
@@ -329,7 +329,7 @@ for pool, sns in sorted(pools.items()):
 
 ---
 
-### Stage 4: Downloading Scan Artifacts
+### Step 4: Downloading Scan Artifacts
 
 Use `fcli sc-dast scan download` to retrieve artifacts from a completed scan. The `-t` flag is **required** (no default). Confirm the relevant `has*` flag is `true` before downloading.
 

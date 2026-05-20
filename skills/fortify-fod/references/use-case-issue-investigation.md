@@ -7,11 +7,11 @@ This use case covers the full issue workflow in sequence:
 2. **Investigation** — filtering to and reading specific issues
 3. **Triage / Audit Updates** — marking issues as false positive, suppressed, or assigning developer status
 
-These stages flow naturally together in a single session. Work through them in order.
+These steps flow naturally together in a single session. Work through them in order.
 
 ---
 
-### Stage 1: Issue Analytics — Getting a Sense of What's There
+### Step 1: Issue Analytics — Getting a Sense of What's There
 
 The user wants to understand the vulnerability landscape for a release without drilling into individual issues (e.g., "how many critical issues does this release have?", "what categories are most common?", "show me new issues from the latest scan").
 
@@ -44,7 +44,7 @@ fcli fod issue list --rel=<releaseNameOrId> --include=visible,fixed \
 
 ---
 
-### Stage 2: Issue Investigation — Drilling Into Specific Issues
+### Step 2: Issue Investigation — Drilling Into Specific Issues
 
 The user wants to understand and remediate a specific set of issues (e.g., "show me the SQL injection issues in UserController", "what are the recommendations for the top 5 critical issues", "find all issues in the payment module").
 
@@ -96,13 +96,13 @@ For field definitions (e.g., `source`, `sink`, `auditorStatus`, compliance mappi
 
 ---
 
-### Stage 3: Updating Issues — Bulk Audit Updates
+### Step 3: Updating Issues — Bulk Audit Updates
 
 The user wants to triage a set of issues: mark as false positive, suppress, add a comment, change developer status, or override severity (e.g., "mark these as remediation required", "set all the test-only path issues to not an issue with a comment", "assign these to me").
 
-This is a direct follow-on to Stage 2 — filter first, then update. `fcli fod issue update` affects all IDs provided in a single call; treat it as a bulk operation regardless of count and always confirm before executing (per Safety Rules in the main SKILL.md).
+This is a direct follow-on to Step 2 — filter first, then update. `fcli fod issue update` affects all IDs provided in a single call; treat it as a bulk operation regardless of count and always confirm before executing (per Safety Rules in the main SKILL.md).
 
-**Step 1 — Filter to the target set** (use Stage 2 above).
+**Step 1 — Filter to the target set** (use Step 2 above).
 
 **Step 2 — Identify the field and value updates**
 

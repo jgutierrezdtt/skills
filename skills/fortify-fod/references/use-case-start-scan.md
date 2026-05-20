@@ -168,7 +168,7 @@ If any ⚠️ findings exist, send **one** message covering all of them:
 > How would you like to proceed?
 > - **Continue** — use the `<resolvedReleaseName>` release as originally resolved
 > - **Switch** — switch to the `<currentBranch>` release (ID: `<id>`)
-> - **Create** — create a new `<currentBranch>` release first (I'll handle it using `use-case-creating-app-or-release.md`)
+> - **Create** — create a new `<currentBranch>` release first (I'll handle it using `use-case-create-release.md`)
 > - **Cancel** — stop here so you can manually correct the target release
 
 Wait for the user's single reply, then act on it. Do **not** ask follow-up alignment questions.

@@ -1,32 +1,16 @@
-# GitLab CI — Fortify Integration
+# GitLab CI — Fortify on Demand Integration
 
-## Contents
-- [Official documentation — fetch when needed](#official-documentation--fetch-when-needed)
-- [Repository investigation](#repository-investigation)
-- [How GitLab integration works](#how-gitlab-integration-works)
-- [FoD: Fortify on Demand](#fod-fortify-on-demand)
-- [SSC: Fortify Software Security Center](#ssc-fortify-software-security-center)
-- [Critical rules](#critical-rules)
-- [Build tool image reference](#build-tool-image-reference)
-- [Component inputs reference](#component-inputs-reference)
-- [Variables configuration](#variables-configuration)
-
----
-
-## Official documentation — fetch when needed
+## Official documentation
 
 Do **not** rely solely on this file for complete parameter and configuration details. Fetch the relevant URL below on demand when you need the full list of supported environment variables, optional features, or advanced configuration options.
 
 | Need | URL to fetch |
 |---|---|
 | Full FoD env var reference, all optional features | https://fortify.github.io/fcli/v3/ci/gitlab/v2.0.x/ast-scan-fod.html |
-| Full SSC env var reference, all optional features | https://fortify.github.io/fcli/v3/ci/gitlab/v2.0.x/ast-scan-ssc.html |
 | fcli component for custom workflows | https://fortify.github.io/fcli/v3/ci/gitlab/v2.0.x/fcli-component.html |
 | Component index | https://fortify.github.io/fcli/v3/ci/gitlab/v2.0.x/index.html |
 
-Fetch proactively when: the user asks about a specific feature or parameter not covered by the templates below, when generating an SSC workflow, or when the user mentions an option you are unsure about.
-
----
+Fetch proactively when: the user asks about a specific feature or parameter not covered by the templates below or when the user mentions an option you are unsure about.
 
 ## Repository investigation
 
@@ -46,7 +30,6 @@ Look for `.gitlab-ci.yml` at the repo root. If found, read it and extract:
 
 Only needed if no existing pipeline gives sufficient context. Check for build manifests (`pom.xml`, `package.json`, `go.mod`, `*.csproj`, `requirements.txt`, etc.) to identify the language and select the correct Docker image. See [Build tool image reference](#build-tool-image-reference).
 
----
 
 ## How GitLab integration works
 
@@ -57,15 +40,11 @@ The Fortify GitLab integration uses **GitLab Components** (not shell scripts or 
 - **`<job-name>-publish-sast`** — publishes SAST results to GitLab's security dashboard (automatic)
 - **`<job-name>-publish-debug-output`** — optionally publishes debug logs (requires `debug: true`)
 
-Key architectural difference from GitHub Actions: **all scan configuration is done via environment variables on the main job**, not component `inputs:`. The `inputs:` block only controls job metadata (job name, stage, fcli version).
-
 Component versioning: use `@1` for the latest v1.x release (recommended), or pin to an exact version like `@1.0.1` for maximum reproducibility.
 
 ---
 
-## FoD: Fortify on Demand
-
-### Gold-standard pipeline template
+### Gold-standard pipeline template for FoD
 
 ```yaml
 include:
@@ -104,42 +83,6 @@ fortify-ast-scan:
 
 ---
 
-## SSC: Fortify Software Security Center
-
-### Gold-standard pipeline template
-
-```yaml
-include:
-  - component: $CI_SERVER_FQDN/Fortify/components/ast-scan/linux@1
-    inputs:
-      job-name: fortify-ast-scan
-      stage: test
-      fcli-version: v3
-
-stages: [test]   # Add or merge with your existing stages list
-
-fortify-ast-scan:
-  image: maven:3-openjdk-17   # Replace with your project's build image — see Build tool image reference
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  variables:
-    SSC_URL: $SSC_URL                           # Non-masked CI/CD variable (not sensitive)
-    SSC_TOKEN: $SSC_TOKEN                       # Masked CI/CD variable — CIToken (unified login token)
-    SC_SAST_TOKEN: $SC_SAST_TOKEN               # Masked CI/CD variable — ScanCentral SAST sensor token
-    # SSC_APPVERSION: MyApp:main                # Optional: defaults to <group/repo>:<branch>
-    # FCLI_BOOTSTRAP_VERSION: v3.18.0           # Optional: pin fcli version for stability
-```
-
-For the full list of SSC env vars and optional features (Aviator, Debricked SCA, policy checks, MR comments), fetch the SSC reference URL from [Official documentation](#official-documentation--fetch-when-needed) before generating.
-
-### SSC-specific notes
-
-- **Debricked SCA**: Set `DEBRICKED_ACCESS_TOKEN` to enable open source scanning alongside SAST. Unlike FoD, SSC SCA is not enabled via `DO_SCA_SCAN` — it requires the Debricked token to be present.
-- **Aviator** (SSC): Requires both `AVIATOR_URL` and `AVIATOR_TOKEN` to be configured. Set `DO_AVIATOR_AUDIT: "false"` to disable if configured but not desired for a specific pipeline.
-
----
-
 ## Critical rules
 
 These are the common failure points specific to GitLab Fortify integration.
@@ -169,9 +112,9 @@ variables:
 
 > **Note**: The official GitLab quick-start example uses API key credentials. Our guidance defaults to user+PAT for consistency with FoD PAT auth best practices, but both are fully supported.
 
-### 2. FOD_URL and SSC_URL — never mask as secrets
+### 2. FOD_URL — never mask as secrets
 
-GitLab allows variables to be marked as **Masked** (hidden in logs) or **Protected** (only available on protected branches). FOD_URL and SSC_URL are **not sensitive** and must be rendered as plain text by the CI/CD system.
+GitLab allows variables to be marked as **Masked** (hidden in logs) or **Protected** (only available on protected branches). FOD_URL is **not sensitive** and must be rendered as plain text by the CI/CD system.
 
 ```yaml
 # CORRECT — hardcoded (simplest, recommended for most cases)
@@ -271,7 +214,7 @@ These inputs are specified in the `include: component:` block, not in the job's 
 
 Tell the user to configure the following in **Settings → CI/CD → Variables**.
 
-**FoD (user credentials + PAT — recommended):**
+**User credentials + PAT (recommended):**
 
 | Variable | Masked | Protected | Value |
 |---|---|---|---|
@@ -280,18 +223,10 @@ Tell the user to configure the following in **Settings → CI/CD → Variables**
 | `FOD_PAT` | Yes | No | Personal Access Token |
 | `FOD_URL` | **No** | No | e.g., `https://ams.fortify.com` (NOT masked — must render as plain text) |
 
-**FoD (API key credentials — alternative):**
+**API key credentials:**
 
 | Variable | Masked | Protected | Value |
 |---|---|---|---|
 | `FOD_CLIENT_ID` | Yes | No | API key Client ID |
 | `FOD_CLIENT_SECRET` | Yes | No | API key Client Secret |
 | `FOD_URL` | **No** | No | e.g., `https://ams.fortify.com` (NOT masked) |
-
-**SSC:**
-
-| Variable | Masked | Protected | Value |
-|---|---|---|---|
-| `SSC_TOKEN` | Yes | No | CIToken (unified login token) |
-| `SC_SAST_TOKEN` | Yes | No | ScanCentral SAST sensor token |
-| `SSC_URL` | **No** | No | SSC server URL (NOT masked — must render as plain text) |

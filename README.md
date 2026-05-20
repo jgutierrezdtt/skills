@@ -9,8 +9,19 @@ AI agent skills that teach Claude, GitHub Copilot and other AI agents how to use
 | **fortify-fod** | Fortify on Demand (SaaS) — applications, releases, scans, issues, OSS analysis, portfolio reporting |
 | **fortify-ssc** | Software Security Center (on-premise) — manage application versions, artifacts, scan jobs, issue triage |
 | **fortify-remediate** | Fix vulnerabilities detected by Fortify — SAST, DAST, and SCA findings; Aviator AI remediation |
+| **fortify-security-assistant** | Detect common, high impact security issues in code as it is being generated |
+| **fortify-create-app** | Create new Fortify applications in FoD or SSC — guided onboarding with validation and defaults |
 | **fortify-cicd-integration** | Add Fortify scanning to CI/CD pipelines — GitHub Actions, GitLab CI, Azure DevOps, Jenkins |
 | **fcli-common** | Fortify CLI (fcli) — installation, authentication, output formats, SpEL queries, custom actions |
+
+
+## Agents
+
+Agents are multi-skill orchestrators that handle end-to-end workflows.
+
+| Agent | Description |
+|-------|-------------|
+| **fortify-onboarding** | Onboard new applications into Fortify (FoD or SSC) — creates the app, configures settings, and optionally sets up CI/CD scanning pipelines. Handles single repos, bulk lists, or entire GitHub/GitLab/Azure DevOps organizations |
 
 ## Prerequisites
 
@@ -29,11 +40,25 @@ claude plugin marketplace add fortify/skills
 claude plugin install fortify-skills@fortify
 ```
 
-The plugin registers all five skills automatically.
+The plugin registers all seven skills and the onboarding agent automatically.
 
 ### GitHub Copilot
 
-Copy the skills to your Copilot skills directory (<user>/.copilot/skills/).  Skills will also be bundled with upcoming releases of Fortify IDE Plugins (VSCode, etc).
+**Recommended: install the [Fortify Code Security](https://marketplace.visualstudio.com/items?itemName=fortifyvsts.fortify-code-security) VS Code extension.** It bundles all Fortify skills, can automatically install fcli, and adds full IDE integration (scanning, vulnerability review, Aviator AI remediation, and an optional fcli MCP server):
+
+1. Open VS Code and search for **Fortify Code Security** in the Extensions panel, or install directly:
+   ```
+   ext install fortifyvsts.fortify-code-security
+   ```
+2. The extension registers all skills automatically and sets up GitHub Copilot Agent Mode integration.
+
+**Alternative: manual install.** Copy the skills to your Copilot skills directory:
+
+```
+<user>/.copilot/skills/
+```
+
+This gives you the skills without the IDE features (scanning UI, vulnerability browser, Aviator inline fixes, MCP server).
 
 ### OpenAI Codex
 
@@ -56,7 +81,7 @@ To make the plugin available across all workspaces, add an entry to your persona
 }
 ```
 
-Then restart Codex. The plugin registers all five skills automatically.
+Then restart Codex. The plugin registers all seven skills automatically.
 
 ### Gemini CLI
 
@@ -66,7 +91,7 @@ Install directly from the GitHub repository:
 gemini extensions install https://github.com/fortify/skills
 ```
 
-The extension bundles all five skills. Gemini CLI auto-discovers them and activates whichever skill is relevant to your task.
+The extension bundles all seven skills. Gemini CLI auto-discovers them and activates whichever skill is relevant to your task.
 
 To test locally before publishing:
 
@@ -82,11 +107,14 @@ Any assistant that supports the [Agent Skills](https://agentskills.io) standard 
 
 Once installed, the skills activate automatically when relevant. Examples of prompts that trigger each skill:
 
-| Prompt | Skill activated |
-|--------|----------------|
+| Prompt | Skill / Agent activated |
+|--------|------------------------|
+| "Onboard this repo to Fortify" | fortify-onboarding (agent) |
+| "Create a new application in FoD for our payments team" | fortify-create-app |
 | "Show me all critical issues in the payment-service release" | fortify-fod |
 | "Upload my FPR and check policy compliance" | fortify-ssc |
 | "Fix the SQL Injection findings in UserService.java" | fortify-remediate |
+| "Add a new endpoint that returns account details" | fortify-security-assistant |
 | "Add Fortify scanning to my GitHub Actions workflows" | fortify-cicd-integration |
 | "Create a custom fcli action to export FoD critical issues as CSV" | fortify-fod + fcli-common |
 
