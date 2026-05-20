@@ -12,3 +12,4 @@ gemini-extension.json
 extensions-distribution.yaml
 LICENSE
 README.md
+version.txt
