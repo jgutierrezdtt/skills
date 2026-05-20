@@ -90,13 +90,13 @@ jobs:
       - name: Build release zip
         run: |
           cd "$RUNNER_TEMP/release"
-          zip -r "$GITHUB_WORKSPACE/fortify-skills.zip" .
+          zip -r "$GITHUB_WORKSPACE/fortify-agent-extensions.zip" .
 
       - name: Upload zip as workflow artifact
         uses: actions/upload-artifact@v7
         with:
-          name: fortify-skills-zip
-          path: fortify-skills.zip
+          name: fortify-agent-extensions-zip
+          path: fortify-agent-extensions.zip
           retention-days: 1
 
   upload-release-asset:
@@ -109,14 +109,14 @@ jobs:
       - name: Download release zip
         uses: actions/download-artifact@v8
         with:
-          name: fortify-skills-zip
+          name: fortify-agent-extensions-zip
 
       - name: Upload to release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "${{ needs.release-please.outputs.tag_name }}" \
-            fortify-skills.zip --clobber
+            fortify-agent-extensions.zip --clobber
 
   semantic-versions:
     needs: [release-please, build-release-zip]
@@ -136,7 +136,7 @@ jobs:
       - name: Download release zip
         uses: actions/download-artifact@v8
         with:
-          name: fortify-skills-zip
+          name: fortify-agent-extensions-zip
 
       - name: Update ${{ matrix.semantic_version }} tag
         uses: fortify/3rdparty-actions/actions/richardsimko/update-tag/v1@main
@@ -156,4 +156,4 @@ jobs:
             -t "${SEMANTIC_VERSION}" \
             -n "Semantic version release for [${RELEASE_TAG}](https://github.com/fortify/skills/releases/tag/${RELEASE_TAG})" \
             --verify-tag --latest=false
-          gh release upload "${SEMANTIC_VERSION}" fortify-skills.zip --clobber
+          gh release upload "${SEMANTIC_VERSION}" fortify-agent-extensions.zip --clobber

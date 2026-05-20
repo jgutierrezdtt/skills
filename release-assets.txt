@@ -9,6 +9,6 @@ agents
 .codex-plugin
 .agents
 gemini-extension.json
-extensions-distribution-v1.yaml
+extensions-distribution.yaml
 LICENSE
 README.md

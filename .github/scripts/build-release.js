@@ -52,8 +52,8 @@ const manifest = [];
 for (const entry of entries) {
   for (const filePath of collectFiles(entry)) {
     const content = fs.readFileSync(filePath);
-    const signature = crypto.sign('sha256', content, privateKey).toString('base64');
-    manifest.push({ path: filePath.split(path.sep).join('/'), signature });
+    const rsa_sha256 = crypto.sign('sha256', content, privateKey).toString('base64');
+    manifest.push({ path: filePath.split(path.sep).join('/'), rsa_sha256 });
 
     const destPath = path.join(outDir, filePath);
     fs.mkdirSync(path.dirname(destPath), { recursive: true });
