@@ -33,7 +33,7 @@ Look for these platform-specific files (check root and common subdirectories):
 
 If multiple are present, note all of them and generate for whichever the user's request implies (or ask if ambiguous).
 
-If no known platform file is found, use the **generic fcli `ci` action approach** — see [references/generic-ci.md](references/generic-ci.md).
+If no known platform file is found, use the **generic fcli `ci` action approach** — see [references/generic-ci-ssc.md](references/generic-ci-ssc.md) for the SSC case or [references/generic-ci-fod.md](references/generic-ci-fod.md) for the FoD case.
 
 ### Detect the build tool and language
 
