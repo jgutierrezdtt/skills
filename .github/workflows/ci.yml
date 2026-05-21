@@ -66,8 +66,6 @@ jobs:
       - uses: actions/checkout@v6
       - id: release
         uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v5@main
-        with:
-          release-type: simple
 
   # Always build the release zip on every branch to validate the asset list.
   # Runs after release-please so the zip contains any version-bumped files.
