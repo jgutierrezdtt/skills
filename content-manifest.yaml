@@ -1,0 +1,21 @@
+# Content manifest — describes what this archive contains.
+# This file is the source of truth for the archive's directory structure.
+# The installation logic (assistant detection, target directories) lives
+# separately in the tool-definitions repo.
+schemaVersion: 1
+
+content-types:
+  skills:
+    source-dir: skills
+    discover: directory
+    entry-marker: SKILL.md
+  agents:
+    source-dir: agents
+    discover: files
+    file-pattern: "*.agent.md"
+  plugins:
+    discover: explicit
+    entries:
+      claude-plugin: .claude-plugin
+      codex-plugin: .codex-plugin
+      gemini-extension: gemini-extension.json
