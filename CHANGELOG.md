@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/fortify/skills/compare/v1.1.0...v1.1.1) (2026-05-21)
+
+
+### Bug Fixes
+
+* Fix version number handling ([ba70e9a](https://github.com/fortify/skills/commit/ba70e9a5dfa48b292f0c1e1c69f63261f46fa626))
+
 ## [1.1.0](https://github.com/fortify/skills/compare/v1.0.0...v1.1.0) (2026-05-21)
 
 
