@@ -88,13 +88,13 @@ jobs:
             [ -z "$entry" ] && continue
             [ -e "$entry" ] && paths+=("$entry")
           done < release-assets.txt
-          zip -r fortify-agent-extensions.zip "${paths[@]}"
+          zip -r ai-assistant-extensions.zip "${paths[@]}"
 
       - name: Upload zip as workflow artifact
         uses: actions/upload-artifact@v7
         with:
-          name: fortify-agent-extensions-zip
-          path: fortify-agent-extensions.zip
+          name: ai-assistant-extensions-zip
+          path: ai-assistant-extensions.zip
           retention-days: 1
 
   upload-release-asset:
@@ -107,11 +107,11 @@ jobs:
       - name: Download release zip
         uses: actions/download-artifact@v8
         with:
-          name: fortify-agent-extensions-zip
+          name: ai-assistant-extensions-zip
 
       - name: Upload to release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "${{ needs.release-please.outputs.tag_name }}" \
-            fortify-agent-extensions.zip --clobber
+            ai-assistant-extensions.zip --clobber
