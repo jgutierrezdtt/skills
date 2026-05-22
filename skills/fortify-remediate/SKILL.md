@@ -1,9 +1,9 @@
 ---
 name: fortify-remediate
-description: Remediate security vulnerabilities detected by Fortify (SAST, DAST, and SCA/open source). Use whenever a user asks to fix, remediate, or resolve Fortify findings — whether targeted ("fix issue 12345", "fix all SQL Injection issues in UserService.java", "upgrade the vulnerable Log4j dependency") or general ("fix the top critical issues", "clean up the SSL/TLS configuration issues", "reduce our Fortify findings"). Also triggers when the user wants to apply Aviator AI remediation guidance to code, or wants to reduce Fortify issue counts by making code or configuration changes — even if the user hasn't explicitly identified specific issues yet. Any request that implies code changes to address security findings should use this skill. Works with both FoD (Fortify on Demand) and SSC (Software Security Center). For broad issue querying, triage, or audit decisions without code changes, use the fortify-fod or fortify-ssc skills instead.
+description: Remediate security vulnerabilities detected by Fortify (SAST, DAST, and SCA/open source). Fix specific issues, categories, or general issue reduction. Supports FoD (Fortify on Demand) and SSC (Software Security Center).
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   tested-with:
     fcli: "3.18"
     fod: "26.1"
@@ -12,55 +12,43 @@ metadata:
 
 # Fortify Remediation
 
-You interact with Fortify using `fcli`. It must already be on the PATH. If it is not installed, activate the `fcli-common` skill for installation instructions.
+Remediating Fortify findings is a 4-step process. Work through steps in order — each step has a clear entry condition and output that feeds the next.
 
-Remediating Fortify findings is a 4-phase process. Work through phases in order — each phase has a clear entry condition and output that feeds the next.
-
-> **Stay within the documented workflow.** Do not proactively offer side-quests or capabilities that aren't part of the phase you're in — e.g., don't volunteer to download or extract source from an FPR, set up CI/CD scanning, reconfigure scan settings, create custom actions, or open bug-tracker tickets unless the user asks. If a step in this skill calls for it, do it; if not, don't surface it as an option. Eager suggestions waste the user's attention and lead them off the remediation path.
+> **Stay within the documented workflow.** Do not proactively offer side-quests or capabilities that aren't part of the step you're in — e.g., don't search for vulnerabilities in the source code, look for local files or vulnerabilities detected by non-Fortify scanners, set up CI/CD scanning, reconfigure scan settings, parse FPR files, etc. If a step in this skill calls for it, do it; if not, don't surface it as an option. Eager suggestions waste the user's attention and lead them off the remediation path.
 
 ---
 
-## Phase 0: Establish Context
+## Step 0: Establish Context
 
 Before any remediation work, confirm these three things:
 
-**1. Platform** — Run both session checks to determine which platform is active:
+**1. Platform** — Fortify on Demand (FoD) vs Software Security Center (SSC). If the user did not specify, run both session checks to determine which platform is active:
 
 ```bash
 fcli fod session ls --query "expired=='No'"
 fcli ssc session ls --query "expired=='No'"
 ```
 
-- If only a FoD session is active → use FoD; activate the `fortify-fod` skill.
-- If only an SSC session is active → use SSC; activate the `fortify-ssc` skill.
+- If only a FoD session is active → platform is FoD.
+- If only an SSC session is active → platform is SSC.
 - If both are active → ask the user which platform they want to use.
-- If neither is active → ask the user which platform they are using, then activate the appropriate platform skill to log in.
+- If neither is active → ask the user which platform they are using and prompt them to create an fcli session with FoD or SSC.
 
-The platform determines which commands you use and whether Aviator guidance is available.
+**fcli not found:** You interact with Fortify using `fcli`. It must already be on the PATH. If it is not installed, load `references/fcli-install.md`.
 
-**2. Target release or application version** — You need this to query issue data. If the user hasn't provided it, use the platform skill (already activated in Step 1) to resolve it. The platform skill handles authentication verification and provides the right name-resolution and issue retrieval commands.
+**2. Target release or application version** — You need this to query issue data. If the user hasn't provided it, load:
+- FoD: `references/resolving-release.md`
+- SSC: `references/resolving-appversion.md`
 
-> **ID usage — do not invent flags:** When the user supplies a numeric ID, use it directly and skip name resolution.
-> - FoD: `--rel=<numericReleaseId>` — there is no separate `--app` or `--release` flag.
-> - SSC: `--av=<numericVersionId>` — there is no separate `--app` or `--version` flag.
-
-**3. What to fix** — Has the user given a specific target? Map it to one of these:
-- **Specific issue IDs** — User provided explicit Fortify issue IDs
-- **Category/file filter** — "all SQL Injection issues", "issues in PaymentController.java"
-- **Component/dependency** — "fix the Jackson Databind vulnerabilities", "upgrade Log4j"
-- **General request** — "fix the top issues", "show me what to fix" → Phase 1 will select a batch
-
-If issue data has already been retrieved in this conversation, skip to Phase 1. Otherwise, use the platform skill to retrieve it before continuing.
-
-### Phase 0 → Phase 1 gate
+### Step 0 → Step 1 gate
 
 Before advancing, confirm all three items are resolved:
 
 - [ ] Platform identified (FoD or SSC)
+- [ ] Active fcli session for target platform
 - [ ] Release / application version identified
-- [ ] Fix target classified (specific IDs / filter / component / general)
 
-Do NOT proceed to Phase 1 until all three are confirmed.
+Do NOT proceed to Step 1 until all three are confirmed.
 
 ### FoD ↔ SSC Field Mapping
 
@@ -77,11 +65,11 @@ FoD and SSC use different field names for the same concepts. Use this mapping wh
 
 ---
 
-## Phase 1: Identify the Target Issue Set
+## Step 1: Identify the Target Issue Seth
 
-> Load `references/issue-targeting.md` before working through this phase.
+> Load `references/issue-targeting.md` before working through this step.
 
-Phase 1 ends when you have a **confirmed, specific list of Fortify issue IDs with enough summary data to begin planning**.
+Step 1 ends when you have a **confirmed, specific list of Fortify issue IDs with enough summary data to begin planning**.
 
 **Specific request** (issue IDs or precise filter already given): Verify you have the issue details; proceed immediately.
 
@@ -93,7 +81,7 @@ Keep the target set to related issues that can be addressed in a single pass. Mi
 
 **Audit status and false positive awareness**: The `fcli fod/ssc issue list` commands exclude suppressed/hidden issues by default, so known false positives marked as suppressed are already filtered out. However, unaudited issues (FoD: `auditorStatus == 'Pending Review'`; SSC: no `Analysis` custom tag set) may include false positives. When selecting issues for a general request, prefer issues that have been audited and confirmed as true positives. For unaudited issues, factor the false-positive risk into your planning — flag uncertain issues to the user rather than planning fixes that may be unnecessary.
 
-### Phase 1 → Phase 2 gate
+### Step 1 → Step 2 gate
 
 Before advancing, verify:
 
@@ -103,22 +91,22 @@ Before advancing, verify:
 - [ ] For general requests: the user has approved your proposed batch
 - [ ] Any issues flagged as uncertain false positives have been called out to the user
 
-Do NOT proceed to Phase 2 until the user has confirmed the target issue set.
+Do NOT proceed to Step 2 until the user has confirmed the target issue set.
 
 ---
 
-## Phase 2: Plan the Fix
+## Step 2: Plan the Fix
 
-Load the reference file for your scan type and follow it to completion. Each file owns the full planning workflow — all retrieval, analysis, and fix formulation steps — as well as the Phase 2 completion gate.
+Load the reference file for your scan type and follow it to completion. Each file owns the full planning workflow — all retrieval, analysis, and fix formulation steps — as well as the Step 2 completion gate.
 
 - **SAST or DAST**: load `references/sast-dast-fix-planning.md`
 - **SCA / open source dependencies**: load `references/sca-fix-planning.md`
 
-Return here for Phase 3 when the reference file signals that planning is complete.
+Return here for Step 3 when the reference file signals that planning is complete.
 
 ---
 
-## Phase 3: Present and Confirm the Plan
+## Step 3: Present and Confirm the Plan
 
 Always present the full remediation plan to the user before making any changes. Include:
 
@@ -131,11 +119,11 @@ Always present the full remediation plan to the user before making any changes. 
 
 If you're uncertain about a fix, say so explicitly rather than guessing. It is better to flag ambiguity than to implement an incorrect fix.
 
-**Wait for explicit user confirmation before proceeding to implementation.** Do NOT begin Phase 4 until the user has reviewed and approved the plan.
+**Wait for explicit user confirmation before proceeding to implementation.** Do NOT begin Step 4 until the user has reviewed and approved the plan.
 
 ---
 
-## Phase 4: Implement and Verify
+## Step 4: Implement and Verify
 
 Load the reference file for your scan type and follow it to completion. Each file owns the full implementation workflow and completion gate.
 
@@ -144,7 +132,7 @@ Load the reference file for your scan type and follow it to completion. Each fil
 
 ### Completion Summary
 
-After the reference file signals Phase 4 complete, return here and provide:
+After the reference file signals Step 4 complete, return here and provide:
 
 - What was changed (files, change types, issue categories resolved)
 - Any issues from the original target list that were **not** fixed, with a brief explanation
@@ -156,21 +144,12 @@ After the reference file signals Phase 4 complete, return here and provide:
 
 | File | When to load |
 |------|--------------|
+| `references/fcli-install.md` | Full fcli installation and upgrade procedures |
+| `references/fcli-query-output.md` | Detailed SpEL query syntax, null-safety patterns, output formats, `--store` variable chaining, server-side filtering, date utility functions |
+| `references/resolving-release.md` | When the user has not specified a release in FoD to target or when you need to confirm the correct release/version based on an ambiguous name. |
+| `references/resolving-appversion.md` | When the user has not specified an application version in SSC to target or when you need to confirm the correct release/version based on an ambiguous name. |
 | `references/issue-targeting.md` | How to select and group issues; "bang for buck" heuristics; how to handle general vs specific requests; Fortify taxonomy guide; SAST vs DAST vs SCA mixing rules |
-| `references/sast-dast-fix-planning.md` | SAST and DAST fix planning (Phase 2); retrieving Aviator AI guidance (FoD); reading and interpreting SAST traces; codebase analysis patterns; unit test guidance |
-| `references/sca-fix-planning.md` | SCA/open source dependency fix planning (Phase 2); collecting CVEs; selecting the minimum safe upgrade version; breaking change analysis |
-| `references/sast-dast-implementation.md` | SAST and DAST implementation (Phase 4); apply-build-test loop; code comment guidelines; completion gate |
-| `references/sca-implementation.md` | SCA dependency implementation (Phase 4); package manager commands by ecosystem; transitive dependency handling; build and verification checklist |
-
----
-
-## Cross-Skill Dependencies
-
-This skill relies on the Fortify platform skills for issue data retrieval. Activate the appropriate skill by name before querying Fortify:
-
-| Platform | Skill to activate |
-|----------|-------------------|
-| Fortify on Demand (FoD) | `fortify-fod` |
-| Software Security Center (SSC) | `fortify-ssc` |
-
-The platform skills handle authentication verification, issue querying, and auditing workflows. Do not duplicate their commands here — compose this workflow on top of them.
+| `references/sast-dast-fix-planning.md` | SAST and DAST fix planning (Step 2); retrieving Aviator AI guidance (FoD); reading and interpreting SAST traces; codebase analysis patterns; unit test guidance |
+| `references/sca-fix-planning.md` | SCA/open source dependency fix planning (Step 2); collecting CVEs; selecting the minimum safe upgrade version; breaking change analysis |
+| `references/sast-dast-implementation.md` | SAST and DAST implementation (Step 4); apply-build-test loop; code comment guidelines; completion gate |
+| `references/sca-implementation.md` | SCA dependency implementation (Step 4); package manager commands by ecosystem; transitive dependency handling; build and verification checklist |

@@ -1,6 +1,6 @@
 # Issue Targeting: Selecting and Grouping Issues for Remediation
 
-This reference explains how to move from a Fortify issue list to a focused, remediation-ready target set.
+This reference explains how to idenfity a focused, remediation-ready target set of Fortify-detected security issues to remediate.
 
 ---
 

@@ -4,7 +4,6 @@
 - [Official documentation — fetch when needed](#official-documentation--fetch-when-needed)
 - [Repository investigation](#repository-investigation)
 - [FoD: Fortify on Demand](#fod-fortify-on-demand)
-- [SSC: Fortify Software Security Center](#ssc-fortify-software-security-center)
 - [Critical rules](#critical-rules)
 - [Build tool setup reference](#build-tool-setup-reference)
 - [Secrets configuration](#secrets-configuration)
@@ -18,10 +17,9 @@ Do **not** rely solely on this file for complete parameter and configuration det
 | Need | URL to fetch |
 |---|---|
 | Full FoD env var reference, all optional features | https://fortify.github.io/fcli/v3/ci/github/v3.0.x/ast-action-fod.html |
-| Full SSC env var reference, all optional features | https://fortify.github.io/fcli/v3/ci/github/v3.0.x/ast-action-ssc.html |
 | Action overview, quick-start examples, custom workflows | https://github.com/marketplace/actions/fortify-ast-scan |
 
-Fetch proactively when: the user asks about a specific feature or parameter not covered by the templates below, when generating an SSC workflow, or when the user mentions an option you are unsure about.
+Fetch proactively when: the user asks about a specific feature or parameter not covered by the templates below, when generating an FoD workflow, or when the user mentions an option you are unsure about.
 
 ---
 
@@ -100,52 +98,6 @@ jobs:
 
 ---
 
-## SSC: Fortify Software Security Center
-
-### Gold-standard workflow template
-
-```yaml
-name: OpenText Fortify AST Scan
-
-on:
-  push:
-    branches: [ $default-branch, $protected-branches ]
-  pull_request:
-    branches: [ $default-branch ]
-  workflow_dispatch:
-
-jobs:
-  Fortify-AST-Scan:
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    steps:
-      - name: Check Out Source Code
-        uses: actions/checkout@v6
-
-      # Replace with the correct setup action for the project's build tool (see Build tool setup reference below, example provided for Go as a reference)
-      - name: Set up build tools
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.23'
-
-      - name: Run Fortify Scan
-        uses: fortify/github-action@v3
-        env:
-          SSC_URL: ${{ vars.SSC_URL }}              # SSC server URL — use variable, NOT secret
-          SSC_TOKEN: ${{ secrets.SSC_TOKEN }}       # SSC CIToken (unified login token)
-          SC_SAST_TOKEN: ${{ secrets.SC_SAST_TOKEN }} # ScanCentral SAST sensor token
-          # SSC_APPVERSION: MyApp:main              # Optional: defaults to <repo>:<branch>
-          # FCLI_BOOTSTRAP_VERSION: v3.18.0         # Optional: pin for stability
-```
-
-For the full list of SSC env vars and optional features, fetch the SSC reference URL from [Official documentation](#official-documentation--fetch-when-needed) before generating.
-
----
-
 ## Critical rules
 
 These are the common failure points observed across AI-generated Fortify GitHub workflows.
@@ -166,7 +118,7 @@ env:
   FOD_CLIENT_SECRET: ${{ secrets.FOD_CLIENT_SECRET }}
 ```
 
-### 2. FOD_URL and SSC_URL — never place in secrets
+### 2. FOD_URL — never place in secrets
 
 ```yaml
 # CORRECT — hardcoded (preferred by gold standard)
@@ -179,7 +131,7 @@ FOD_URL: ${{ vars.FOD_URL }}
 FOD_URL: ${{ secrets.FOD_URL }}
 ```
 
-### 3. Permissions block — all three entries required for FoD/SSC
+### 3. Permissions block — all three entries required for FoD
 
 ```yaml
 permissions:
@@ -229,21 +181,11 @@ Derive the setup step from the existing workflow files or source manifests (see 
 
 ## Secrets configuration
 
-Tell the user to configure the following in **Settings → Secrets and variables → Actions**:
+Tell the user to configure the following in **Settings → Secrets and variables → Actions** (PAT auth — recommended):
 
-**FoD (PAT auth — recommended):**
 | Secret / Variable | Type | Value |
 |---|---|---|
 | `FOD_TENANT` | Secret | FoD tenant name |
 | `FOD_USER` | Secret | Tenant user login |
 | `FOD_PAT` | Secret | Personal Access Token |
 | `FOD_URL` | Variable (not secret) | e.g., `https://ams.fortify.com` |
-
-**SSC:**
-| Secret / Variable | Type | Value |
-|---|---|---|
-| `SSC_TOKEN` | Secret | SSC CIToken |
-| `SC_SAST_TOKEN` | Secret | ScanCentral SAST sensor token |
-| `SSC_URL` | Variable (not secret) | SSC server URL |
-
-

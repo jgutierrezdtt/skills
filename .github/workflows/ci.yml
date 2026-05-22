@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: read
+
+jobs:
+  check-skill-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Verify skill versions bumped for changed skills
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base=${{ github.event.pull_request.base.sha }}
+          else
+            base=${{ github.event.before }}
+          fi
+
+          # Skip check on initial push (no previous commit) or force-push
+          if [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            echo "Initial or orphan push — skipping version check"
+            exit 0
+          fi
+
+          exit_code=0
+          for skill_dir in skills/*/; do
+            [ -d "$skill_dir" ] || continue
+            skill_name=$(basename "$skill_dir")
+
+            # Check if any files in this skill changed (excluding SKILL.md itself)
+            changed=$(git diff --name-only "$base" -- "$skill_dir" \
+              | grep -v 'SKILL.md$' || true)
+
+            if [ -n "$changed" ]; then
+              # Content changed — did SKILL.md metadata.version change too?
+              version_bumped=$(git diff "$base" -- "${skill_dir}SKILL.md" \
+                | grep -E '^\+.*version:' || true)
+
+              if [ -z "$version_bumped" ]; then
+                echo "::error::Skill '$skill_name' has content changes but metadata.version in SKILL.md was not bumped"
+                exit_code=1
+              fi
+            fi
+          done
+          exit $exit_code
+
+  release-please:
+    needs: check-skill-versions
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: release
+        uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v5@main
+
+  # Always build the release zip on every branch to validate the asset list.
+  # Runs after release-please so the zip contains any version-bumped files.
+  build-release-zip:
+    needs: [check-skill-versions, release-please]
+    # Also run if release-please was skipped (e.g. on non-main branch) to still validate
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build release zip
+        run: |
+          paths=()
+          while IFS= read -r entry || [ -n "$entry" ]; do
+            entry="${entry%%#*}"
+            entry="$(echo "$entry" | xargs)"
+            [ -z "$entry" ] && continue
+            [ -e "$entry" ] && paths+=("$entry")
+          done < release-assets.txt
+          zip -r ai-assistant-extensions.zip "${paths[@]}"
+
+      - name: Upload zip as workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ai-assistant-extensions-zip
+          path: ai-assistant-extensions.zip
+          retention-days: 1
+
+  upload-release-asset:
+    needs: [release-please, build-release-zip]
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download release zip
+        uses: actions/download-artifact@v8
+        with:
+          name: ai-assistant-extensions-zip
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ needs.release-please.outputs.tag_name }}" \
+            ai-assistant-extensions.zip --clobber

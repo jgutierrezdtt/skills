@@ -1,6 +1,6 @@
 # SCA Dependency Fix Planning
 
-This reference covers **Phase 2 (planning)** for SCA/open source dependency findings from Fortify — vulnerabilities in third-party dependencies detected via software composition analysis. For Phase 4 (implementation), load `references/sca-implementation.md`.
+This reference covers **Step 2 (planning)** for SCA/open source dependency findings from Fortify — vulnerabilities in third-party dependencies detected via software composition analysis. For Step 4 (implementation), load `references/sca-implementation.md`.
 
 SCA remediation is fundamentally different from SAST/DAST: the "fix" is almost always a **version upgrade** rather than a code change. The challenge is selecting the right version and managing the upgrade safely.
 
@@ -134,13 +134,13 @@ When a major version bump is required:
 3. Check whether the affected dependency is used directly in the codebase (import statements / API calls) — if so, those call sites may need updating
 4. Check if any other direct dependencies also declare a version range for this library that would conflict
 
-### Phase 2 Completion Gate
+### Step 2 Completion Gate
 
-Before presenting the plan in Phase 3, verify:
+Before presenting the plan in Step 3, verify:
 
 - [ ] Breaking change risk has been assessed for the full version range between current and target
-- [ ] Direct vs. transitive status is known — if transitive, note this so it can be handled in Phase 4 (`references/sca-implementation.md` Step 5)
+- [ ] Direct vs. transitive status is known — if transitive, note this so it can be handled in Step 4 (`references/sca-implementation.md` Step 5)
 - [ ] If a **major version bump** is required: the user has explicitly approved this path (not just chosen Option C abstractly — confirmed the specific target version)
 - [ ] If a migration guide exists for a major bump: it has been reviewed for breaking API changes affecting this codebase
 
-Phase 2 is complete. Return to SKILL.md for Phase 3.
+Step 2 is complete. Return to SKILL.md for Step 3.

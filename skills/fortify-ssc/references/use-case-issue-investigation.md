@@ -7,11 +7,11 @@ This use case covers the full issue workflow in sequence:
 2. **Investigation** — filtering to and reading specific issues
 3. **Triage / Audit Updates** — suppressing issues, setting custom tags, assigning users
 
-These stages flow naturally together in a single session. Work through them in order.
+These steps flow naturally together in a single session. Work through them in order.
 
 ---
 
-### Stage 1: Issue Analytics — Getting a Sense of What's There
+### Step 1: Issue Analytics — Getting a Sense of What's There
 
 The user wants to understand the vulnerability landscape for a version without drilling into individual issues (e.g., "how many critical issues does this version have?", "what categories are most common?", "show me new issues from the latest scan").
 
@@ -61,7 +61,7 @@ fcli ssc pi list --av="<AppName>:<VersionName>" -o json
 
 ---
 
-### Stage 2: Issue Investigation — Drilling Into Specific Issues
+### Step 2: Issue Investigation — Drilling Into Specific Issues
 
 The user wants to understand and investigate specific issues (e.g., "show me the SQL injection issues in UserController", "find all unreviewed critical issues", "which file has the most high-severity issues").
 
@@ -134,13 +134,13 @@ For filter set and folder structure, see `references/use-case-application-versio
 
 ---
 
-### Stage 3: Updating Issues — Bulk Audit Updates
+### Step 3: Updating Issues — Bulk Audit Updates
 
 The user wants to triage a set of issues: suppress, set custom tag values, add a comment, or assign to a user (e.g., "mark these as Not an Issue", "suppress all the test-path XSS issues", "assign the critical issues to alice").
 
-This is a direct follow-on to Stage 2 — filter first, then update. `fcli ssc issue update` affects all IDs provided in a single call; treat it as a bulk operation regardless of count and always confirm before executing (per Safety Rules in the main SKILL.md).
+This is a direct follow-on to Step 2 — filter first, then update. `fcli ssc issue update` affects all IDs provided in a single call; treat it as a bulk operation regardless of count and always confirm before executing (per Safety Rules in the main SKILL.md).
 
-**Step 1 — Filter to the target set** (use Stage 2 above).
+**Step 1 — Filter to the target set** (use Step 2 above).
 
 **Step 2 — Discover available custom tags** for this version:
 ```bash

@@ -25,12 +25,12 @@ fcli --version
 
 **Pin to a specific version (recommended for CI/CD):**
 ```bash
-npx @fortify/setup@2 env init --tools=fcli:v3.16.0
+npx @fortify/setup@2 env init --tools=fcli:v3.18.0
 ```
 
 **Install additional tools alongside fcli:**
 ```bash
-npx @fortify/setup env init --tools=fcli:auto,sc-client:25.2
+npx @fortify/setup env init --tools=fcli:auto,sc-client:25.4
 ```
 
 **Upgrade (same commands):**

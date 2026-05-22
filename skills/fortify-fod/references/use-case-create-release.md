@@ -1,74 +1,41 @@
-## Use Case: Creating an Application or Release
+## Use Case: Adding a Release to an Existing FoD Application
 
-The user wants to onboard a new project to FoD (new app) or add a new release within an existing app (new branch, new version, new test environment, new microservice).
+The user wants to add a new release within an existing FoD application — for
+a new branch, version, test environment, or microservice.
+
+> **Creating a new top-level application?** Use the `fortify-create-app` skill.
+> This reference covers only releases within apps that already exist.
 
 ---
 
-### Step 1 — Understand the context and naming conventions
+### Step 1 — Understand the existing app structure
 
-FoD apps and releases follow common structural patterns. Match the tenant's existing convention:
+Check whether the app uses microservices:
 
-| Pattern | App name | Release names |
-|---------|----------|---------------|
-| One app per repo (most common) | mirrors repo name (e.g., `payments-api`) | branches: `main`, `dev`, `my-feature-branch`, `pr-123` |
-| Versioned deliverables | product name | `v25.1`, `v25.2`, `v26.1` |
-| Test environments (DAST) | app name | `main`, `staging`, `qa` (each a separately deployed URL) |
-| Microservices | app name with `--type=Microservice` | per-microservice releases; identifier: `AppName:ServiceName:ReleaseName` |
-
-Some tenants enforce prefixes, suffixes, or separators (e.g., `team-payments/api`, `BU-Alpha:webapp`). Before naming a new app, inspect what already exists:
-```bash
-fcli fod app list -o json
-```
-Look for naming prefixes, separators, BU identifiers, or team tags in `applicationName` values.
-
-Check whether the target app already exists and whether it uses microservices:
 ```bash
 fcli fod app list --query "applicationName=='<name>'" -o json
 # → check hasMicroservices field
 ```
 
-If working with an existing app, list its releases (and microservices, if applicable) to understand naming patterns and identify the `--copy-from` source:
+List existing releases (and microservices if applicable) to understand naming
+patterns and identify a `--copy-from` source:
+
 ```bash
 fcli fod release list --query "applicationName=='<name>'" -o json
 fcli fod microservice list --app=<appNameOrId> -o json   # only if hasMicroservices==true
 ```
 
-If a local git context is available, the default branch is a good `--copy-from` candidate:
+If a local git context is available, the branch name is a good starting point:
+
 ```bash
 git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'
 ```
 
-**Based on `hasMicroservices`, follow the appropriate path below.**
+**Based on `hasMicroservices`, follow Path A or B below.**
 
 ---
 
 ### Path A: Standard App (No Microservices)
-
-#### Creating a new standard app
-
-`fcli fod app create` creates the app and its first release in one command:
-
-| Field | Flag | Required | Valid values |
-|-------|------|----------|--------------|
-| App name | `<applicationName>` (positional) | ✓ | free text |
-| App type | `--type` | ✓ | `Web`, `ThickClient`, `Mobile` |
-| Business criticality | `--criticality` | ✓ | `High`, `Medium`, `Low` |
-| Initial release name | `--release` | ✓ | free text (e.g., `main`) |
-| Initial release SDLC status | `--status` | ✓ | `Development`, `QA`, `Production`, `Retired` |
-| Automatically set required attributes | `--auto-required-attrs` | Recommended | n/a |
-| Make idempotent | `--skip-if-exists` | Recommended | n/a |
-
-Optional but worth asking: `--owner` (app owner), `--description` (app description), `--release-description` (release description).  To get a list of possible app owners, query the API directly using `GET /api/v3/applications/owners`.
-
-```bash
-fcli fod app create "SampleWebApp" \
-  --type=Web \
-  --criticality=High \
-  --release="main" \
-  --status=Development \
-  --auto-required-attrs \
-  --skip-if-exists -o json
-```
 
 #### Adding a release to an existing standard app
 
@@ -94,19 +61,6 @@ fcli fod release wait-for "SampleWebApp:my-feature-branch"
 ### Path B: Microservice App
 
 A microservice-type app has an extra layer between the app and its releases. The full identifier for a release is `AppName:ServiceName:ReleaseName`.
-
-#### Create a new microservice app (new apps only)
-Create the microservices app with an initial microservice and release.
-
-```bash
-fcli fod app create "platform-services" \
-  --type=Microservice \
-  --criticality=High \
-  --release="auth-service:main" \
-  --status=Development \
-  --auto-required-attrs \
-  --skip-if-exists -o json
-```
 
 #### Adding new microservices to an existing microservices app
 
@@ -177,9 +131,7 @@ Ask the user if they know of any required attributes before running the command.
 
 Before presenting the proposed command to the user, verify:
 
-- [ ] Tenant naming conventions inspected — `fcli fod app list` reviewed for prefixes, separators, team tags
-- [ ] App existence checked — confirmed whether creating a new app or adding a release to an existing one
-- [ ] `hasMicroservices` value known — correct path (A or B) selected
+- [ ] Application exists and `hasMicroservices` value known — correct path (A or B) selected
 - [ ] `--copy-from` source identified, or confirmed not applicable (DAST environments, first-ever scan)
 - [ ] Required attributes assessed — `--auto-required-attrs` included or explicit values identified
 

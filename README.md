@@ -4,41 +4,28 @@ AI agent skills that teach Claude, GitHub Copilot and other AI agents how to use
 
 ## Skills
 
-| Skill | Description | References |
-|-------|-------------|-----------|
-| **fortify-fod** | Fortify on Demand (SaaS) — applications, releases, scans, issues, OSS analysis, portfolio reporting | 6 original |
-| **fortify-ssc** | Software Security Center (on-premise) — manage application versions, artifacts, scan jobs, issue triage | 7 original |
-| **fortify-remediate** | Fix vulnerabilities detected by Fortify — SAST, DAST, and SCA findings; Aviator AI remediation | 4 original |
-| **fortify-cicd-integration** | Add Fortify scanning to CI/CD pipelines — GitHub Actions, GitLab CI, Azure DevOps, Jenkins | 2 original + **2 added** (azure-devops, jenkins) |
-| **fcli-common** | Fortify CLI (fcli) — installation, authentication, output formats, SpEL queries, custom actions | 4 original |
-| **fortify-governance** | Platform administration — user and role management, token lifecycle, application onboarding, SSC administration | **4 new** |
-| **fortify-audit-workflow** | Issue triage lifecycle — bulk audit operations, false positive management, risk acceptance with documentation | **3 new** |
-| **fortify-reporting** | Security reporting — executive summaries, compliance mapping (PCI DSS, SOC 2, HIPAA, OWASP), trend analysis, custom action reports | **4 new** |
-| **fortify-custom-rules** | Extend Fortify — custom SAST rulepack authoring (all analyzer types), rulepack management in SSC, fcli action signing, compliance mapping | 3 original + **7 added** |
+| Skill | Description |
+|-------|-------------|
+| **fortify-fod** | Fortify on Demand (SaaS) — applications, releases, scans, issues, OSS analysis, portfolio reporting |
+| **fortify-ssc** | Software Security Center (on-premise) — manage application versions, artifacts, scan jobs, issue triage |
+| **fortify-remediate** | Fix vulnerabilities detected by Fortify — SAST, DAST, and SCA findings; Aviator AI remediation |
+| **fortify-security-assistant** | Detect common, high impact security issues in code as it is being generated |
+| **fortify-create-app** | Create new Fortify applications in FoD or SSC — guided onboarding with validation and defaults |
+| **fortify-cicd-integration** | Add Fortify scanning to CI/CD pipelines — GitHub Actions, GitLab CI, Azure DevOps, Jenkins |
+| **fcli-common** | Fortify CLI (fcli) — installation, authentication, output formats, SpEL queries, custom actions |
+| **fortify-governance** | Platform administration — user and role management, token lifecycle, application onboarding, SSC administration |
+| **fortify-audit-workflow** | Issue triage lifecycle — bulk audit operations, false positive management, risk acceptance with documentation |
+| **fortify-reporting** | Security reporting — executive summaries, compliance mapping (PCI DSS, SOC 2, HIPAA, OWASP), trend analysis, custom action reports |
+| **fortify-custom-rules** | Extend Fortify — custom SAST rulepack authoring (all analyzer types), rulepack management in SSC, fcli action signing, compliance mapping |
 
-### What the new skills add
 
-**`fortify-governance`** — The core platform skills (`fortify-fod`, `fortify-ssc`) cover business operations: scans, issues, releases. They assume the platform is already configured. Governance fills the gap with user and role management (including offboarding), token and API key lifecycle, structured application onboarding (one-repo-one-app pattern, version seeding, attribute templates), and SSC-specific administration: rulepacks, plugins, LDAP, and custom tags at instance level.
+## Agents
 
-**`fortify-audit-workflow`** — `fortify-fod` and `fortify-ssc` can list and query issues but do not guide audit decisions. This skill adds an explicit audit state model with compliance implications per state, operational guardrails (50-issue bulk limit, mandatory comments, list-before-write), a precise distinction between `False Positive`, `Suppressed`, and `Risk Accepted` — three concepts frequently confused — and a formal risk acceptance workflow with escalation criteria and approver requirements for high-severity findings.
+Agents are multi-skill orchestrators that handle end-to-end workflows.
 
-**`fortify-reporting`** — The portfolio use cases in `fortify-fod` and `fortify-ssc` return raw query data. This skill transforms that data into structured output: executive summaries with RAG status and immediate actions, compliance gap analysis mapped to PCI DSS v4.0, SOC 2, HIPAA, and OWASP Top 10 controls with per-control issue counts, trend analysis with remediation velocity across scan cycles, and automation of recurring reports via fcli custom actions with CI/CD pipeline integration patterns.
-
-### What was added to existing skills
-
-**`fortify-cicd-integration`** — The original skill covered GitHub Actions and GitLab CI. Two new reference files add the same depth for **Azure DevOps** (official Marketplace extension, task configuration, secret variable setup) and **Jenkins** (FoD Uploader plugin and SSC Fortify plugin, declarative pipeline patterns, `withCredentials` usage). Both files include repository investigation guidance before generating any pipeline code, and direct the agent to fetch current plugin documentation rather than guessing parameter names.
-
-**`fortify-custom-rules`** — The original skill covered basic rulepack structure and SSC management. Seven additional reference files now cover the full rule authoring surface:
-
-| Reference file added | What it covers |
-|---|---|
-| `taint-flags-reference.md` | Full catalog of General / Neutral / Specific taint flags; `<Conditional>` element syntax for sinks; partial and full cleanse patterns |
-| `characterization-rules.md` | `CharacterizationRule` — structural predicates combined with taint operations; annotation-based source detection; `foreach` over matched items |
-| `suppression-rules.md` | `SuppressionRule` for systematic FP elimination at rulepack level; `AliasRule` to extend coverage to custom wrapper types; `ResultFilterRule` |
-| `external-metadata.md` | Mapping rules to CWE, OWASP Top 10 2021, PCI-DSS v4.0 via `external-metadata.xml`; loading alongside rulepacks in SSC |
-| `content-config-rules.md` | `ContentRule` and `ConfigurationRule` for XML/JSON/YAML/properties files; XPath, regex, JSONPath, YAMLPath patterns; coverage by technology (Android, Docker, Kubernetes, Spring Boot, .NET, Django) |
-| `control-flow-rules.md` | `ControlFlowRule` state machines for resource leaks, missing security checks, call-sequence violations, transaction lifecycle |
-| `framework-function-identifiers.md` | Quick-reference tables of `className`/`functionName` for FunctionIdentifier blocks across Spring, JEE, ASP.NET Core, Django, Flask, Express, Go, and Rails |
+| Agent | Description |
+|-------|-------------|
+| **fortify-onboarding** | Onboard new applications into Fortify (FoD or SSC) — creates the app, configures settings, and optionally sets up CI/CD scanning pipelines. Handles single repos, bulk lists, or entire GitHub/GitLab/Azure DevOps organizations |
 
 ## Prerequisites
 
@@ -57,11 +44,25 @@ claude plugin marketplace add fortify/skills
 claude plugin install fortify-skills@fortify
 ```
 
-The plugin registers all nine skills automatically.
+The plugin registers all eleven skills and the onboarding agent automatically.
 
 ### GitHub Copilot
 
-Copy the skills to your Copilot skills directory (<user>/.copilot/skills/).  Skills will also be bundled with upcoming releases of Fortify IDE Plugins (VSCode, etc).
+**Recommended: install the [Fortify Code Security](https://marketplace.visualstudio.com/items?itemName=fortifyvsts.fortify-code-security) VS Code extension.** It bundles all Fortify skills, can automatically install fcli, and adds full IDE integration (scanning, vulnerability review, Aviator AI remediation, and an optional fcli MCP server):
+
+1. Open VS Code and search for **Fortify Code Security** in the Extensions panel, or install directly:
+   ```
+   ext install fortifyvsts.fortify-code-security
+   ```
+2. The extension registers all skills automatically and sets up GitHub Copilot Agent Mode integration.
+
+**Alternative: manual install.** Copy the skills to your Copilot skills directory:
+
+```
+<user>/.copilot/skills/
+```
+
+This gives you the skills without the IDE features (scanning UI, vulnerability browser, Aviator inline fixes, MCP server).
 
 ### OpenAI Codex
 
@@ -84,7 +85,7 @@ To make the plugin available across all workspaces, add an entry to your persona
 }
 ```
 
-Then restart Codex. The plugin registers all nine skills automatically.
+Then restart Codex. The plugin registers all eleven skills automatically.
 
 ### Gemini CLI
 
@@ -94,7 +95,7 @@ Install directly from the GitHub repository:
 gemini extensions install https://github.com/fortify/skills
 ```
 
-The extension bundles all nine skills. Gemini CLI auto-discovers them and activates whichever skill is relevant to your task.
+The extension bundles all eleven skills. Gemini CLI auto-discovers them and activates whichever skill is relevant to your task.
 
 To test locally before publishing:
 
@@ -110,13 +111,20 @@ Any assistant that supports the [Agent Skills](https://agentskills.io) standard 
 
 Once installed, the skills activate automatically when relevant. Examples of prompts that trigger each skill:
 
-| Prompt | Skill activated |
-|--------|----------------|
+| Prompt | Skill / Agent activated |
+|--------|------------------------|
+| "Onboard this repo to Fortify" | fortify-onboarding (agent) |
+| "Create a new application in FoD for our payments team" | fortify-create-app |
 | "Show me all critical issues in the payment-service release" | fortify-fod |
 | "Upload my FPR and check policy compliance" | fortify-ssc |
 | "Fix the SQL Injection findings in UserService.java" | fortify-remediate |
+| "Add a new endpoint that returns account details" | fortify-security-assistant |
 | "Add Fortify scanning to my GitHub Actions workflows" | fortify-cicd-integration |
 | "Create a custom fcli action to export FoD critical issues as CSV" | fortify-fod + fcli-common |
+| "Show me all users in SSC and who has admin access" | fortify-governance |
+| "Mark these 30 findings as false positive with justification" | fortify-audit-workflow |
+| "Generate a compliance report for PCI DSS v4.0" | fortify-reporting |
+| "Create a custom SAST rule to detect our internal API misuse" | fortify-custom-rules |
 
 
 ## Resources
@@ -128,3 +136,17 @@ Once installed, the skills activate automatically when relevant. Examples of pro
 ## License
 
 MIT
+
+---
+
+## Additional skills in this fork
+
+This fork extends the upstream `fortify/skills` with four additional skills covering platform governance, issue triage, security reporting, and custom SAST rule authoring. These are not yet part of the upstream repository.
+
+**`fortify-governance`** — The core platform skills (`fortify-fod`, `fortify-ssc`) cover business operations: scans, issues, releases. They assume the platform is already configured. Governance fills the gap with user and role management (including offboarding), token and API key lifecycle, structured application onboarding (one-repo-one-app pattern, version seeding, attribute templates), and SSC-specific administration: rulepacks, plugins, LDAP, and custom tags at instance level.
+
+**`fortify-audit-workflow`** — `fortify-fod` and `fortify-ssc` can list and query issues but do not guide audit decisions. This skill adds an explicit audit state model with compliance implications per state, operational guardrails (50-issue bulk limit, mandatory comments, list-before-write), a precise distinction between `False Positive`, `Suppressed`, and `Risk Accepted` — three concepts frequently confused — and a formal risk acceptance workflow with escalation criteria and approver requirements for high-severity findings.
+
+**`fortify-reporting`** — The portfolio use cases in `fortify-fod` and `fortify-ssc` return raw query data. This skill transforms that data into structured output: executive summaries with RAG status and immediate actions, compliance gap analysis mapped to PCI DSS v4.0, SOC 2, HIPAA, and OWASP Top 10 controls with per-control issue counts, trend analysis with remediation velocity across scan cycles, and automation of recurring reports via fcli custom actions with CI/CD pipeline integration patterns.
+
+**`fortify-custom-rules`** — Covers the full SAST rule authoring surface: taint flag catalog, CharacterizationRule with structural predicates, SuppressionRule/AliasRule for FP elimination, compliance mapping via external-metadata.xml (CWE/OWASP/PCI-DSS), ContentRule/ConfigurationRule for XML/JSON/YAML/properties misconfigurations, ControlFlowRule state machines for resource leak and call-sequence detection, and quick-reference tables of className/functionName for 8 frameworks (Spring, JEE, ASP.NET Core, Django, Flask, Express, Go, Rails).

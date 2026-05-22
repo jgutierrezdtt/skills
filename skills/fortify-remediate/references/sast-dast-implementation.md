@@ -1,6 +1,6 @@
 # SAST and DAST Implementation
 
-This reference covers **Phase 4 (implementation)** for Static (SAST) and Dynamic (DAST) Fortify findings. Complete all steps, then return to SKILL.md for the Completion Summary.
+This reference covers **Step 4 (implementation)** for Static (SAST) and Dynamic (DAST) Fortify findings. Complete all steps, then return to SKILL.md for the Completion Summary.
 
 ---
 
@@ -26,7 +26,7 @@ If after implementation you realize a fix may be incomplete or incorrect — e.g
 
 ---
 
-## Phase 4 Completion Gate
+## Step 4 Completion Gate
 
 Before returning to SKILL.md, verify:
 
@@ -35,4 +35,4 @@ Before returning to SKILL.md, verify:
 - [ ] Tests pass (or any newly failing tests are investigated and explained to the user, not silently skipped)
 - [ ] Each change was self-reviewed against the root cause and surrounding code style
 
-Phase 4 is complete. Return to SKILL.md for the Completion Summary.
+Step 4 is complete. Return to SKILL.md for the Completion Summary.

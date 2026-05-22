@@ -1,9 +1,9 @@
 ---
 name: fortify-cicd-integration
-description: Generate or update CI/CD pipeline workflow files to integrate OpenText Fortify application security scanning (SAST, SCA) into GitHub Actions, GitLab CI, Azure DevOps, Jenkins, or any other CI/CD platform. Use this skill whenever the user asks to add Fortify to a pipeline, set up security scanning in CI/CD, configure a Fortify workflow file, or configure automated AppSec scanning within a pipeline or workflow file — even if they don't say "CI/CD" explicitly. Also use when the user asks about DevSecOps pipeline integration, shift-left security, or adding security gates to a build process — even if they don't mention Fortify by name, if the workspace contains Fortify-related configuration. Does NOT handle running ad-hoc or on-demand scans — use fortify-fod or fortify-ssc for that.
+description: Integrate Fortify application security (SAST, SCA, DAST) with GitHub Actions, GitLab Pipelines, Azure DevOps, Jenkins & other CICD/DevSecOps pipelines.
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   tested-with:
     fcli: "3.18"
 ---
@@ -33,7 +33,7 @@ Look for these platform-specific files (check root and common subdirectories):
 
 If multiple are present, note all of them and generate for whichever the user's request implies (or ask if ambiguous).
 
-If no known platform file is found, use the **generic fcli `ci` action approach** — see [references/generic-ci.md](references/generic-ci.md).
+If no known platform file is found, use the **generic fcli `ci` action approach** — see [references/generic-ci-ssc.md](references/generic-ci-ssc.md) for the SSC case or [references/generic-ci-fod.md](references/generic-ci-fod.md) for the FoD case.
 
 ### Detect the build tool and language
 
@@ -46,14 +46,32 @@ Check in this priority order:
 
 Search for any existing Fortify-related files (`fortify.yml`, `fod.yaml`, files containing `fortify/github-action`, `fcli`, `FOD_`, `SSC_`) to understand whether Fortify is already partially configured and what credentials/variables are already referenced.
 
+### Check for an active Fortify session
+
+If you are still not sure whether the user wants to integra with FoD or SSC, check if there is an active fcli session for either platform.
+
+```bash
+fcli fod session ls --query "expired=='No'"
+fcli ssc session ls --query "expired=='No'"
+```
+
 ---
 
-## Step 2: Clarify only what cannot be determined from code
+## Step 2: Clarify only what cannot be determined from explicit user input or repository inspection
 
 After investigation, ask the user **only** for information that cannot be inferred from the repository or user prompt:
 
-1. **Fortify platform** (required unless already stated in the user's request or present in an existing Fortify config): Fortify on Demand (FoD / cloud-hosted) or Fortify SSC (self-hosted / on-prem)?
-2. **FoD region URL** — If not determinable from an existing Fortify configuration, default to `https://ams.fortify.com`. Only ask the user to confirm the region if there's reason to believe the default is wrong (e.g., user mentions EMEA, APAC, or GovCloud).
+1. **Fortify platform:** Fortify on Demand (FoD) or Fortify SSC (self-hosted / on-prem / private cloud)?
+2. **FoD region URL:** — Only relevant for FoD, not applicable to SSC. Options include:
+
+| Region | URL |
+|---|---|
+| US (default) | `https://ams.fortify.com` |
+| EMEA | `https://emea.fortify.com` |
+| EU | `https://eu.fortify.com` |
+| APAC | `https://apac.fortify.com` |
+| SGP | `https://sgp.fortify.com` |
+
 3. **Optional Features** — SCA (open source scanning) and Aviator (AI-assisted auditing) are enabled by default in the generated workflow. Policy checks (`DO_CHECK_POLICY`) and PR/MR comments (`DO_PR_COMMENT`) are disabled by default. Ask the user if they want to review and customize these optional features.
 
 ---
@@ -81,38 +99,31 @@ Do NOT generate or write the workflow file until the user confirms. If any item 
 
 ## General guidelines
 
-- **Prefer the official Fortify managed action/plugin** for platforms that have one (GitHub Actions, GitLab CI, Azure DevOps, Jenkins). For all other platforms, use the generic fcli `ci` action approach — see [references/generic-ci.md](references/generic-ci.md).
-- **Keep secrets in the platform's secret store**; hardcode or use variables only for non-sensitive configuration (e.g., Fortify server URL).
+- **Prefer the official Fortify managed action/plugin** for platforms that have one (GitHub Actions, GitLab CI, Azure DevOps, Jenkins).
+- **Keep secrets in the platform's secret store**; hardcode or use variables only for non-sensitive configuration (e.g., Fortify server URL). After generating the workflow, remind the user to configure the required secrets in their platform's secret management UI.
 - **FOD_URL / SSC_URL must never be placed in secrets** — these are non-sensitive endpoints. Store as a repository/pipeline variable or hardcode directly.
 - **Default to FoD PAT authentication** unless they explicitly request to use API client credentials (or API key). Only include user/password or Client Credentials, never use both.
-- **Always include a permissions block** (where the platform supports it) with the minimum required permissions.
 - **Pin action/plugin versions** to major version tags (e.g., `@v3`) for a balance of stability and automatic patch updates.
 - **Never invent optional features, configuration settings or attributes** Always refer to the official documentation for the platform's Fortify action/plugin to ensure all inputs are valid and up-to-date. If documentation is unclear, default to the most basic configuration that will work and flag any uncertainties to the user.
-- After generating the workflow, remind the user to configure the required secrets in their platform's secret management UI.
 
 ---
 
-## Platform-specific guidance
+## Platform-specific references
+
+Load the appropriate reference file for the detected platform and Fortify deployment before generating any workflow content. These reference files contain the exact environment variables, configuration options, and best practices for that specific integration.
 
 | Platform | Fortify Deployment | Reference |
 |---|---|---|
-| GitHub Actions | FoD or SSC | See [references/github.md](references/github.md) |
-| GitLab CI | FoD or SSC | See [references/gitlab.md](references/gitlab.md) |
-| Azure DevOps | FoD or SSC | See [references/azure-devops.md](references/azure-devops.md) |
-| Jenkins | FoD or SSC | See [references/jenkins.md](references/jenkins.md) |
-| Azure DevOps | FoD or SSC | See **Azure DevOps** section below |
-| Jenkins | FoD or SSC | See **Jenkins** section below |
-| Any other platform | FoD or SSC | See [references/generic-ci.md](references/generic-ci.md) |
+| GitHub Actions | FoD | `references/github-fod.md` |
+| GitHub Actions | SSC | `references/github-ssc.md` |
+| GitLab CI | FoD | `references/gitlab-fod.md` |
+| GitLab CI | SSC | `references/gitlab-ssc.md` |
+| Azure DevOps | FoD or SSC | `references/azure-devops.md` |
+| Jenkins | FoD or SSC | `references/jenkins.md` |
 
-For GitHub Actions, GitLab CI, Azure DevOps, and Jenkins: read the appropriate platform-specific Markdown file before generating any output.
-
-For all other platforms (Bitbucket Pipelines, Travis CI, CircleCI, TeamCity, Buildkite, Bamboo, etc.): read [references/generic-ci.md](references/generic-ci.md) before generating any output.
-
----
-
-## Generic CI/CD integration
-
-For platforms without an official Fortify-managed action or plugin (Bitbucket Pipelines, Travis CI, CircleCI, TeamCity, Buildkite, Bamboo, etc.), read [references/generic-ci.md](references/generic-ci.md) before generating any output. The generic approach uses the fcli `ci` action, which runs a complete scan pipeline driven entirely by environment variables.
+For any other platform (Bitbucket Pipelines, Travis CI, CircleCI, TeamCity, Buildkite, Bamboo, etc.) should load:
+- FoD: `references/generic-ci-fod.md` 
+- SSC: `references/generic-ci-ssc.md`
 
 ---
 

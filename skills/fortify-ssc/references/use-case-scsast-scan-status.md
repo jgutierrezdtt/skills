@@ -73,7 +73,7 @@ Duration fields (`jobDuration`, `scanDuration`, `queuedDuration`) are in **milli
 
 ---
 
-### Stage 1: Listing and Filtering Scan Jobs
+### Step 1: Listing and Filtering Scan Jobs
 
 **List all scan jobs (all states):**
 ```bash
@@ -161,7 +161,7 @@ fcli sc-sast scan list \
 
 ---
 
-### Stage 2: Getting Status for a Specific Scan Job
+### Step 2: Getting Status for a Specific Scan Job
 
 > **Requires client auth token.** `fcli sc-sast scan status` connects directly to the SC-SAST Controller. If the session shows `SC-SAST: N/A (No client-auth-token)`, see the Authentication Note above before proceeding.
 
@@ -181,7 +181,7 @@ fcli sc-sast scan status <jobToken> -o json | \
 
 ---
 
-### Stage 3: Sensor Status and Utilization
+### Step 3: Sensor Status and Utilization
 
 **List all sensors:**
 ```bash
@@ -230,7 +230,7 @@ fcli sc-sast sensor list \
 
 ---
 
-### Stage 4: Sensor Pool Status and Utilization
+### Step 4: Sensor Pool Status and Utilization
 
 > **Requires client auth token.** `fcli sc-sast pool list` and `fcli sc-sast sensor list --pool=...` connect directly to the SC-SAST Controller. If the session shows `SC-SAST: N/A (No client-auth-token)`, use the SSC REST API fallback below (which works with an SSC-only session).
 
@@ -285,7 +285,7 @@ for p in json.load(sys.stdin):
 
 ---
 
-### Stage 5: Downloading Scan Artifacts
+### Step 5: Downloading Scan Artifacts
 
 > **Requires client auth token.** `fcli sc-sast scan download` connects directly to the SC-SAST Controller. If the session shows `SC-SAST: N/A (No client-auth-token)`, see the Authentication Note above before proceeding.
 

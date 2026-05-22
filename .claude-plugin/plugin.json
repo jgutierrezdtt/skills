@@ -11,8 +11,13 @@
   "skills": [
     "./skills/fortify-fod/",
     "./skills/fortify-ssc/",
+    "./skills/fortify-exploitability-analysis/",
     "./skills/fcli-common/",
     "./skills/fortify-remediate/",
+    "./skills/fortify-create-app/",
     "./skills/fortify-cicd-integration/"
+  ],
+  "agents": [
+    "./agents/fortify-onboard.agent.md"
   ]
 }
